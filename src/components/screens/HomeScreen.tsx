@@ -1,118 +1,81 @@
-/* eslint-disable prettier/prettier */
-import React, {FC} from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {FlatList} from 'react-native/Libraries/Lists/FlatList';
-import {useGetPosts} from '../apiCalls/getPostsQuery';
+// import React, {useState, useEffect} from 'react';
+// import {View, Text} from 'react-native';
+// import VideoPlayer from '../VideoPlayer';
+// import getAnimeYouTubeUrl from '../apiCalls/apiAnime';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export interface ScreenProps {
-  navigation: any;
+// const storageKey = 'youtubeVideoUrl';
+
+// const HomeScreen = () => {
+//   const [youtubeUrl, setYoutubeUrl] = useState<string | null>(null);
+
+//   const getAnimeData = async () => {
+//     try {
+//       const animeDataString = await AsyncStorage.getItem(storageKey);
+//       if (animeDataString !== null) {
+//         const animeData = JSON.parse(animeDataString);
+//         setYoutubeUrl(animeData.youtube_url);
+//       } else {
+//         const animeData = await getAnimeYouTubeUrl(1);
+//         setYoutubeUrl(animeData.youtube_url);
+//       }
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   };
+
+//   useEffect(() => {
+//     getAnimeData();
+//   }, []);
+
+//   return (
+//     <View>
+//       {youtubeUrl ? (
+//         <VideoPlayer videoUrl={youtubeUrl} />
+//       ) : (
+//         <Text>Loading...</Text>
+//       )}
+//     </View>
+//   );
+// };
+
+// export default HomeScreen;
+
+import React, {useEffect, useState} from 'react';
+import {View, Text} from 'react-native';
+
+interface Anime {
+  youtube_url: string;
 }
 
-export type ApiArray = [
-  {
-    id: number;
-    title: string;
-    userId: number;
-    body: string;
-  },
-];
+const AnimeList = () => {
+  const [animeList, setAnimeList] = useState([]);
 
-const HomeScreen: FC<ScreenProps> = ({navigation}) => {
-  const {data, isLoading} = useGetPosts();
+  useEffect(() => {
+    const fetchAnimeList = async () => {
+      try {
+        const response = await fetch('https://api.jikan.moe/v4/anime');
+        const data = await response.json();
+        console.log('DATA:', data); // Log the API response to the console
+        const youtubeUrls = data.data.map((anime: Anime) => anime.youtube_url);
+        setAnimeList(youtubeUrls);
+      } catch (error) {
+        console.error('ERROR:', error);
+      }
+    };
+
+    fetchAnimeList();
+  }, []);
 
   return (
-    <SafeAreaView>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>My Posts' titles</Text>
-        {isLoading ? (
-          <Text>Loading...</Text>
-        ) : data ? (
-          data.map((posts, idx: number) => {
-            return (
-              <View key={idx}>
-                <Text style={{fontSize: 22}}>id: {posts.id}</Text>
-                <Text style={[styles.titleContainer, {fontSize: 22}]}>
-                  title: {JSON.stringify(posts.title)}
-                </Text>
-              </View>
-            );
-          })
-        ) : (
-          <Text>Whoops! No data available</Text>
-        )}
-      </ScrollView>
-
-      <View style={{}}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate('Screen2')}>
-            <Text style={{color: 'black', fontSize: 16}}>Go to next page</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </SafeAreaView>
+    <View>
+      {animeList &&
+        animeList.map(url => {
+          console.log(url); // Log each URL to the console
+          return <Text>{url}</Text>;
+        })}
+    </View>
   );
 };
 
-const styles = StyleSheet.create({
-  title: {
-    fontWeight: 'bold',
-    color: 'white',
-    fontSize: 16,
-  },
-  buttonContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    paddingHorizontal: 24,
-  },
-  button: {
-    borderWidth: 0,
-    borderRadius: 8,
-    backgroundColor: '#DDDDDD',
-
-    padding: 20,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  container: {
-    width: '70%',
-    height: 50,
-    paddingHorizontal: 20,
-    margin: 10,
-    alignSelf: 'center',
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  titleContainer: {
-    marginBottom: 10,
-  },
-});
-
-export default HomeScreen;
+export default AnimeList;

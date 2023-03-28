@@ -1,6 +1,6 @@
 import {useQuery} from 'react-query';
 import axios from 'axios';
-import {ApiArray} from '../screens/HomeScreen';
+import {ApiArray} from '../screens/HomeScreen1';
 
 const postsUrl = 'https://jsonplaceholder.typicode.com/posts?_limit=10&_page=0';
 

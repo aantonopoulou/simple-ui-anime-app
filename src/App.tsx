@@ -9,7 +9,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
 import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 import HomeScreen from './components/screens/HomeScreen';
-import Screen2Component from './components/screens/Screen2Component';
+import ScreenTwo from './components/screens/ScreenTwo';
 
 //mport {StackNavigationConstants} from './navigation/navigationConstants';
 
@@ -25,7 +25,7 @@ const App = () => {
   return (
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Screen2" component={Screen2Component} />
+      <Stack.Screen name="Screen2" component={ScreenTwo} />
     </Stack.Navigator>
   );
 };
