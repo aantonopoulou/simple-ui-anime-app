@@ -9,7 +9,8 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
 import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 import HomeScreen from './components/screens/HomeScreen';
-import ScreenTwo from './components/screens/ScreenTwo';
+//import ScreenTwo from './components/screens/ScreenTwo';
+import AnimeListScreen from './components/screens/AnimeListScreen';
 
 //mport {StackNavigationConstants} from './navigation/navigationConstants';
 
@@ -24,8 +25,8 @@ const App = () => {
   //console.log(StackNavigationConstants.SCREEN_2);
   return (
     <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Screen2" component={ScreenTwo} />
+      <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Screen name="AnimeList" component={AnimeListScreen} />
     </Stack.Navigator>
   );
 };
