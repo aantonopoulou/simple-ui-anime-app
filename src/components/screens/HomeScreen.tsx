@@ -89,13 +89,17 @@ export interface ScreenProps {
 }
 
 const HomeScreen = ({navigation}: ScreenProps) => {
-  const handlePress = () => {
+  const handlePress1 = () => {
     navigation.navigate('AnimeList');
+  };
+  const handlePress2 = () => {
+    navigation.navigate('History');
   };
 
   return (
     <>
-      <Button title="Go to AnimeList" onPress={handlePress} />
+      <Button title="Go to Anime Video Play" onPress={handlePress1} />
+      <Button title="Go to History List" onPress={handlePress2} />
     </>
   );
 };

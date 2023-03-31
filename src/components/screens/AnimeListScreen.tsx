@@ -1,24 +1,26 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import getAnimeQuery from '../../services/apiCalls/getAnimeQuery';
 import {mapResponse} from '../../services/maps/mapResponse';
-import {
-  FlatList,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TextInput,
-  Button,
-} from 'react-native';
+import {StyleSheet, Text, View, TextInput} from 'react-native';
 import {WebView} from 'react-native-webview';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useQueryClient} from 'react-query';
 
 const AnimeListScreen = () => {
   const [animeNumber, setAnimeNumber] = useState('');
+  //const [animeData, setAnimeData] = useState(null);
   // call the getAnimeQuery to fetch the data for an anime with ID 1
   const {data, isLoading, isError} = getAnimeQuery(Number(animeNumber));
+  const queryClient = useQueryClient();
+
+  const saveAnimeDataToStorage = async (animeId: string, animeData: string) => {
+    try {
+      const jsonValue = JSON.stringify(animeData);
+      await AsyncStorage.setItem(`anime_${animeId}`, jsonValue);
+    } catch (e) {
+      console.log('Error saving anime data to AsyncStorage:', e);
+    }
+  };
 
   if (!animeNumber) {
     return (
@@ -66,6 +68,8 @@ const AnimeListScreen = () => {
       </View>
     );
   }
+
+  saveAnimeDataToStorage(animeNumber, data.data);
 
   return (
     // <Text>{url}</Text>
