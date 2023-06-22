@@ -1,86 +1,3 @@
-// // import React, {useState, useEffect} from 'react';
-// // import {View, Text} from 'react-native';
-// // import VideoPlayer from '../VideoPlayer';
-// // import getAnimeYouTubeUrl from '../apiCalls/apiAnime';
-// // import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// // const storageKey = 'youtubeVideoUrl';
-
-// // const HomeScreen = () => {
-// //   const [youtubeUrl, setYoutubeUrl] = useState<string | null>(null);
-
-// //   const getAnimeData = async () => {
-// //     try {
-// //       const animeDataString = await AsyncStorage.getItem(storageKey);
-// //       if (animeDataString !== null) {
-// //         const animeData = JSON.parse(animeDataString);
-// //         setYoutubeUrl(animeData.youtube_url);
-// //       } else {
-// //         const animeData = await getAnimeYouTubeUrl(1);
-// //         setYoutubeUrl(animeData.youtube_url);
-// //       }
-// //     } catch (error) {
-// //       console.error(error);
-// //     }
-// //   };
-
-// //   useEffect(() => {
-// //     getAnimeData();
-// //   }, []);
-
-// //   return (
-// //     <View>
-// //       {youtubeUrl ? (
-// //         <VideoPlayer videoUrl={youtubeUrl} />
-// //       ) : (
-// //         <Text>Loading...</Text>
-// //       )}
-// //     </View>
-// //   );
-// // };
-
-// // export default HomeScreen;
-
-// import React, {useEffect, useState} from 'react';
-// import {View, Text} from 'react-native';
-// import {useQuery} from 'react-query';
-
-// interface Anime {
-//   youtube_url: string;
-// }
-
-// const AnimeList = () => {
-//   const [animeList, setAnimeList] = useState([]);
-
-//   useEffect(() => {
-//     const fetchAnimeList = async () => {
-//       try {
-//         const response = await fetch('https://api.jikan.moe/v4/anime');
-//         const data = await response.json();
-//         console.log('DATA:', data); // Log the API response to the console
-//         const youtubeUrls = data.data.map((anime: Anime) => anime.youtube_url);
-//         setAnimeList(youtubeUrls);
-//       } catch (error) {
-//         console.error('ERROR:', error);
-//       }
-//     };
-
-//     fetchAnimeList();
-//   }, []);
-
-//   return (
-//     <View>
-//       {animeList &&
-//         animeList.map(url => {
-//           console.log(url); // Log each URL to the console
-//           return <Text>{url}</Text>;
-//         })}
-//     </View>
-//   );
-// };
-
-// export default AnimeList;
-
 import React, {FC} from 'react';
 import {View, Text, StyleSheet, Button} from 'react-native';
 
@@ -90,18 +7,54 @@ export interface ScreenProps {
 
 const HomeScreen = ({navigation}: ScreenProps) => {
   const handlePress1 = () => {
-    navigation.navigate('AnimeList');
+    navigation.navigate('AnimeScreen');
   };
   const handlePress2 = () => {
-    navigation.navigate('History');
+    navigation.navigate('Login');
   };
 
   return (
     <>
-      <Button title="Go to Anime Video Play" onPress={handlePress1} />
-      <Button title="Go to History List" onPress={handlePress2} />
+      <View style={styles.container}>
+        <Text style={styles.title}>Welcome to My Anime List !</Text>
+        <Text style={styles.subtitle}>
+          A place to keep track of all your favourite anime
+        </Text>
+        <View style={styles.button}>
+          <Button title="Login" onPress={handlePress2} />
+        </View>
+        <View style={styles.button}>
+          <Button title="Sign up" onPress={handlePress2} />
+        </View>
+      </View>
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    paddingBottom: 100,
+    flex: 1,
+    flexDirection: 'column',
+    //backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 36,
+    color: 'black',
+    //fontWeight: 'bold',
+  },
+  subtitle: {
+    fontSize: 14,
+    fontStyle: 'italic',
+  },
+  button: {
+    //paddingHorizontal: 130,
+    //paddingBottom: 15,
+    paddingTop: 15,
+  },
+});
 
 export default HomeScreen;

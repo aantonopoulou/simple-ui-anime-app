@@ -9,8 +9,10 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
 import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 import HomeScreen from './components/screens/HomeScreen';
-import HistoryListScreen from './components/screens/HistoryListScreen';
-import AnimeListScreen from './components/screens/AnimeListScreen';
+import FavouritesScreen from './components/screens/FavouritesScreen';
+import LoginScreen from './components/screens/LoginScreen';
+import AnimeScreen from './components/screens/AnimeScreen';
+import SelectedFavScreen from './components/screens/SelectedFavScreen';
 
 //mport {StackNavigationConstants} from './navigation/navigationConstants';
 
@@ -25,9 +27,11 @@ const App = () => {
   //console.log(StackNavigationConstants.SCREEN_2);
   return (
     <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen name="HomeScreen" component={HomeScreen} />
-      <Stack.Screen name="AnimeList" component={AnimeListScreen} />
-      <Stack.Screen name="History" component={HistoryListScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="SelectedFav" component={SelectedFavScreen} />
+      <Stack.Screen name="AnimeScreen" component={AnimeScreen} />
+      <Stack.Screen name="Favourites" component={FavouritesScreen} />
     </Stack.Navigator>
   );
 };

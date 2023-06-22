@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {FlatList, StyleSheet, Text, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+ 
 const getAnimeDataFromStorage = async (): Promise<any[]> => {
   try {
     const keys = await AsyncStorage.getAllKeys();
