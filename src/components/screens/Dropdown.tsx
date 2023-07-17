@@ -69,6 +69,10 @@ const Dropdown = ({navigation}: ScreenProps) => {
           setSelectedItem as React.Dispatch<React.SetStateAction<string[]>>
         }
         setOpen={setOpen}
+        listMode="SCROLLVIEW"
+        scrollViewProps={{
+          decelerationRate: 'fast',
+        }}
         //onChangeValue={handleItemChange}
         //placeholder="Select an item..."
       />

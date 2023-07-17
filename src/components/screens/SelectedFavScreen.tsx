@@ -16,12 +16,13 @@ export interface ScreenProps {
   route: {
     params: {
       selectedFav: Anime;
+      userId: string;
     };
   };
 }
 
 const SelectedFavScreen = ({navigation, route}: ScreenProps) => {
-  const {selectedFav} = route.params || {};
+  const {selectedFav, userId} = route.params;
   const {removeFavourite} = useFavouritesStore();
 
   const renderAnime = (selectedAnime: Anime) => {
@@ -55,12 +56,14 @@ const SelectedFavScreen = ({navigation, route}: ScreenProps) => {
       <View style={styles.buttonContainer}>
         <Button
           title="Return to Search Anime engine"
-          onPress={() => navigation.navigate('AnimeScreen')}
+          onPress={() =>
+            navigation.navigate('AnimeScreen', {selectedAnime: null, userId})
+          }
         />
         <Pressable
           //style={() => styles.button}
           onPress={() => {
-            removeFavourite(selectedFav.mal_id);
+            removeFavourite(selectedFav.mal_id, userId);
             navigation.navigate('Favourites');
             {
               selectedFav && renderAnime(selectedFav);

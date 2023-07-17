@@ -5,55 +5,90 @@ import {
   StyleSheet,
   Pressable,
   TouchableOpacity,
+  FlatList,
+  Alert,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {useFavouritesStore} from '../store/FavouritesStore';
 import AnimeScreen from './AnimeScreen';
+import {Anime} from '../../services/types/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const FavouritesScreen = ({route, navigation}: any) => {
-  const {favourites} = useFavouritesStore();
-  //const {itemId, otherParam} = route.params;
+export interface ScreenProps {
+  navigation: any;
+  route: {
+    params: {
+      selectedFav: Anime;
+      userId: string;
+      favorites: Anime[];
+    };
+  };
+}
 
-  useEffect(() => {
-    // Fetch the favourites when the component mounts
-    // Add any necessary dependencies to the dependency array if needed
-    // For example, if you want to refetch favourites when certain values change
-    // e.g., userId or any other relevant data
-    // fetchFavourites();
-  }, []);
+const FavouritesScreen = ({route, navigation}: ScreenProps) => {
+  const {userId, favorites} = route.params;
 
-  // const onPress = () => {
-  //   navigation.navigate('Login');
+  console.log('userId_fromFavs=', userId);
+  console.log('favourites', favorites);
+
+  // // Function to retrieve favorites for a specific user from AsyncStorage
+  // const getFavoritesForUser = async (userId: string) => {
+  //   try {
+  //     const favoritesData = await AsyncStorage.getItem(`favorites:${userId}`);
+  //     if (favoritesData) {
+  //       const userFavorites = JSON.parse(favoritesData);
+  //       setFavorites(userFavorites);
+  //     } else {
+  //       setFavorites([]);
+  //     }
+  //   } catch (error) {
+  //     console.log('Error retrieving favorites:', error);
+  //   }
   // };
+
+  // useEffect(() => {
+  //   const getUserFavorites = async () => {
+  //     try {
+  //       // Retrieve user-specific favorites from storage using the userId
+  //       const userFavorites = await getFavoritesForUser(userId);
+  //       console.log('User favorites:', userFavorites);
+  //       // ...
+  //     } catch (error) {
+  //       console.log('Error retrieving user favorites:', error);
+  //     }
+  //   };
+
+  //   getUserFavorites();
+  // }, [userId]);
+
+  // ...
+
+  // const userFavourites = favourites[userId] || [];
 
   return (
     <View>
-      {favourites.map((selectedAnime: any) => (
-        // <Text key={selectedAnime.mal_id}>{selectedAnime.title_english}</Text>
+      <Text>Favourites:</Text>
+      <FlatList
+        data={favorites}
+        keyExtractor={item => item.mal_id.toString()}
+        renderItem={({item}) => (
+          <Text>{item.title_english || item.title_japanese}</Text>
+        )}
+      />
 
+      {favorites.map((selectedAnime: any) => (
         <TouchableOpacity
           key={selectedAnime.mal_id}
           style={styles.button}
           onPress={() =>
             navigation.navigate('SelectedFav', {
-              selectedFav: selectedAnime, // Pass the selectedFav object directly
+              selectedFav: selectedAnime, // Passing the selectedFav object directly
             })
           }>
           <Text style={styles.titles} key={selectedAnime.mal_id}>
             {selectedAnime.title_english}
           </Text>
         </TouchableOpacity>
-
-        // <Pressable
-        //   onPress={() => {
-        //     navigation.navigate('AnimeScreen');
-        //   }}>
-        //   {() => (
-        //     <Text style={styles.titles} key={selectedAnime.mal_id}>
-        //       {selectedAnime.title_english}
-        //     </Text>
-        //   )}
-        // </Pressable>
       ))}
     </View>
   );

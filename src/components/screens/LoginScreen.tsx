@@ -1,19 +1,21 @@
 import React, {useState} from 'react';
 import usersData from '../../users.json';
 import {View, TextInput, Button, Alert, StyleSheet} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const user = usersData.users.find(
       userData =>
         userData.username === username && userData.password === password,
     );
 
     if (user) {
-      navigation.navigate('AnimeScreen');
+      await AsyncStorage.setItem('userId', user.username.toString());
+      navigation.navigate('AnimeScreen', {userId: user.username});
     } else {
       Alert.alert('Invalid username or password');
     }

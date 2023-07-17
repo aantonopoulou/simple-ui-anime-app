@@ -16,16 +16,23 @@ const HomeScreen = ({navigation}: ScreenProps) => {
   return (
     <>
       <View style={styles.container}>
-        <Text style={styles.title}>Welcome to My Anime List !</Text>
+        <Text style={styles.title}>Welcome to Anime search engine!</Text>
         <Text style={styles.subtitle}>
-          A place to keep track of all your favourite anime
+          A place to search and save all your favorite anime.
         </Text>
-        <View style={styles.button}>
-          <Button title="Login" onPress={handlePress2} />
+        <View style={styles.containerButtons}>
+          <View style={styles.button}>
+            <Button title="Login" onPress={handlePress2} />
+          </View>
+
+          <View style={styles.button}>
+            <Button title="Sign up" onPress={handlePress2} />
+          </View>
         </View>
-        <View style={styles.button}>
+
+        {/* <View style={styles.button}>
           <Button title="Sign up" onPress={handlePress2} />
-        </View>
+        </View> */}
       </View>
     </>
   );
@@ -54,6 +61,13 @@ const styles = StyleSheet.create({
     //paddingHorizontal: 130,
     //paddingBottom: 15,
     paddingTop: 15,
+    width: 75,
+  },
+  containerButtons: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: 180,
   },
 });
 
