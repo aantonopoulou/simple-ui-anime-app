@@ -30,7 +30,7 @@ export interface ScreenProps {
   navigation: any;
   route: {
     params: {
-      selectedAnime: Anime;
+      selAnime: Anime;
       userId: string;
     };
   };
@@ -51,8 +51,9 @@ const openAlert = () => {
   );
 };
 const AnimeScreen = ({navigation, route}: ScreenProps) => {
-  const {selectedAnime, userId} = route.params;
+  const {selAnime, userId} = route.params;
   console.log('userId1:', userId);
+  console.log('selAnime1:', selAnime);
 
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
@@ -71,10 +72,12 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
         label: anime.title_english || anime.title_japanese,
         value: anime.mal_id.toString(),
       }));
+      console.log('value1:', value);
       console.log('titles', titles);
       //console.log('animeData:', animeData);
       setItems(titles);
       setAnimeData(animeData);
+      console.log('value2:', value);
     } catch (error) {
       console.log('Error fetching anime titles:', error);
     }
@@ -84,10 +87,14 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
     console.log(`https://api.jikan.moe/v4/anime/${animeId}`);
     try {
       const selectedAnime = animeData.find(
-        (anime: Anime) => anime.mal_id.toString() === animeId,
+        (anime: Anime) => anime.mal_id.toString() === value,
       );
       if (selectedAnime) {
+        console.log('selectedAnime2=', selectedAnime);
+        console.log('value=', value);
+        console.log('items=', items);
         setAnimeInfo(selectedAnime);
+        setText('Add to Favorites');
       } else {
         console.log('Anime not found');
       }
@@ -109,7 +116,11 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
     } else {
       setAnimeInfo(null);
     }
-  }, [value]);
+  }, [value, animeData]);
+
+  useEffect(() => {
+    console.log('value=', value);
+  }, [items]);
 
   // Function to retrieve favorites for a specific user from AsyncStorage
   const getFavoritesForUser = async (userId: string) => {
@@ -139,8 +150,11 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
   };
 
   // Usage in the "Add to Favorites" button handler
-  const handleAddToFavourites = async () => {
+  const handleAddToFavourites = async (selectedAnime: Anime) => {
     console.log('button AddToFavs pressed');
+    if (!selectedAnime) {
+      console.log('selectedAnime = ', selectedAnime); // Handle the case where selectedAnime is null
+    }
     // Retrieve existing favorites for the user
     const favorites = await getFavoritesForUser(userId);
 
@@ -186,9 +200,14 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
       <View style={{zIndex: -1}}>
         <ScrollView style={styles.scrollView}>
           {/* <Text>{selectedAnime.trailer.url}</Text> */}
-          <View style={styles.buttonContainer3}>
-            <Button onPress={() => handleAddToFavourites()} title={text} />
-          </View>
+          {selectedAnime && (
+            <View style={styles.buttonContainer3}>
+              <Button
+                onPress={() => handleAddToFavourites(animeInfo)}
+                title={text}
+              />
+            </View>
+          )}
           <Text style={styles.animeTitle}>
             {selectedAnime.title_english || selectedAnime.title_japanese}
           </Text>
