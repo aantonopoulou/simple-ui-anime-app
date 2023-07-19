@@ -58,7 +58,7 @@ const useFavouritesStore = create(
           return state; // Return the state object if there are no changes
         });
       },
-      removeFavourite: animeId =>
+      removeFavourite: (animeId: number) =>
         set(state => ({
           favourites: state.favourites.filter(
             anime => anime.mal_id !== animeId,

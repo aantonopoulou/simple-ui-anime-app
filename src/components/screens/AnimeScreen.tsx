@@ -50,6 +50,16 @@ const openAlert = () => {
     },
   );
 };
+const clearAllData = async () => {
+  try {
+    await AsyncStorage.clear();
+    console.log('All data cleared successfully.');
+  } catch (error) {
+    console.log('Error clearing data:', error);
+  }
+};
+//clearAllData();
+
 const AnimeScreen = ({navigation, route}: ScreenProps) => {
   const {selAnime, userId} = route.params;
   console.log('userId1:', userId);
@@ -58,11 +68,24 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [value, setValue] = useState<string | null>(null);
-  const [animeInfo, setAnimeInfo] = useState<any>(null);
+  const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [animeData, setAnimeData] = useState([]);
-  const [text, setText] = useState('Add to Favorites');
+  const [textAdd, setTextAdd] = useState('Add to Favorites');
 
-  //const {favourites, addFavourite} = useFavouritesStore();
+  const logStoredDataForUser = async (userId: string) => {
+    try {
+      const data = await AsyncStorage.getItem(`favorites:${userId}`);
+      if (data !== null) {
+        console.log(`Stored data for user ${userId}:`, JSON.parse(data));
+      } else {
+        console.log(`No stored data found for user ${userId}.`);
+      }
+    } catch (error) {
+      console.log('Error retrieving stored data:', error);
+    }
+  };
+
+  logStoredDataForUser(userId);
 
   const fetchAnimeTitles = async () => {
     try {
@@ -93,8 +116,8 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
         console.log('selectedAnime2=', selectedAnime);
         console.log('value=', value);
         console.log('items=', items);
-        setAnimeInfo(selectedAnime);
-        setText('Add to Favorites');
+        setSelectedAnime(selectedAnime);
+        setTextAdd('Add to Favorites');
       } else {
         console.log('Anime not found');
       }
@@ -107,6 +130,11 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
     fetchAnimeTitles();
   }, []);
 
+  // useEffect to handle changes in selAnime prop
+  useEffect(() => {
+    setSelectedAnime(selAnime);
+  }, [selAnime]);
+
   useEffect(() => {
     // AsyncStorage.getItem('favourites-storage').then(resolvedValue => {
     //   console.log('resolved value of AsyncStorage::::', resolvedValue);
@@ -114,7 +142,7 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
     if (value) {
       fetchSelectedAnimeInfo(value);
     } else {
-      setAnimeInfo(null);
+      setSelectedAnime(selAnime);
     }
   }, [value, animeData]);
 
@@ -171,7 +199,7 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
 
       // Save the updated favorites to AsyncStorage
       await saveFavoritesForUser(userId, updatedFavorites);
-      setText('Added!');
+      setTextAdd('Added!');
     }
   };
 
@@ -203,14 +231,18 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
           {selectedAnime && (
             <View style={styles.buttonContainer3}>
               <Button
-                onPress={() => handleAddToFavourites(animeInfo)}
-                title={text}
+                onPress={() => handleAddToFavourites(selectedAnime)}
+                title={textAdd}
               />
             </View>
           )}
-          <Text style={styles.animeTitle}>
-            {selectedAnime.title_english || selectedAnime.title_japanese}
-          </Text>
+          {selectedAnime ? (
+            <Text style={styles.animeTitle}>
+              {selectedAnime.title_english || selectedAnime.title_japanese}
+            </Text>
+          ) : (
+            <Text>Select a title from the dropdown menu!</Text>
+          )}
 
           <View style={styles.infoContainer2}>
             <Text style={styles.infoText}>Year: {selectedAnime.year}</Text>
@@ -245,9 +277,10 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
       <View style={styles.container}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('AnimeScreen', {selectedAnime: null, userId})
-            }>
+            onPress={() => {
+              navigation.navigate('AnimeScreen', {selectedAnime: null, userId});
+              setSelectedAnime(null);
+            }}>
             <Image
               source={animeLogoSticker}
               style={[styles.logo, {marginRight: 120}]}
@@ -256,19 +289,16 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
           <TouchableOpacity onPress={handleViewFavorites}>
             <View style={styles.button}>
               <FontAwesome name="heart-o" size={20} />
-              {/* <Text style={styles.buttonText}>See your Favourites here!</Text> */}
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <View style={styles.button}>
               <MaterialCommunityIcons name="account-cog" size={20} />
-              {/* <Text style={styles.buttonText}>Go to Login page</Text> */}
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
             <View style={styles.button}>
               <AntDesign name="logout" size={20} />
-              {/* <Text style={styles.buttonText}>Go to Login page</Text> */}
             </View>
           </TouchableOpacity>
         </View>
@@ -298,9 +328,9 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
                 setValue={itemValue => setValue(itemValue)}
                 setItems={setItems}
                 placeholder={
-                  animeInfo?.title_english
-                    ? animeInfo?.title_english
-                    : animeInfo?.title_japanese
+                  selectedAnime?.title_english
+                    ? selectedAnime?.title_english
+                    : selectedAnime?.title_japanese
                 }
                 dropDownContainerStyle={{backgroundColor: '#fff', zIndex: 1}}
                 listMode="SCROLLVIEW"
@@ -309,7 +339,7 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
                 }}
               />
 
-              {animeInfo && renderAnime(animeInfo)}
+              {selectedAnime && renderAnime(selectedAnime)}
             </View>
           )}
         </View>
