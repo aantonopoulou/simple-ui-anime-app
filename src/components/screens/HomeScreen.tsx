@@ -12,6 +12,9 @@ const HomeScreen = ({navigation}: ScreenProps) => {
   const handlePress2 = () => {
     navigation.navigate('Login');
   };
+  const handlePress3 = () => {
+    navigation.navigate('Signup');
+  };
 
   return (
     <>
@@ -26,7 +29,7 @@ const HomeScreen = ({navigation}: ScreenProps) => {
           </View>
 
           <View style={styles.button}>
-            <Button title="Sign up" onPress={handlePress2} />
+            <Button title="Sign up" onPress={handlePress3} />
           </View>
         </View>
 

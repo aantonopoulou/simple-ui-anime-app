@@ -11,6 +11,7 @@ import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 import HomeScreen from './components/screens/HomeScreen';
 import FavouritesScreen from './components/screens/FavouritesScreen';
 import LoginScreen from './components/screens/LoginScreen';
+import SignupScreen from './components/screens/SignupScreen';
 import AnimeScreen from './components/screens/AnimeScreen';
 import SelectedFavScreen from './components/screens/SelectedFavScreen';
 
@@ -29,6 +30,7 @@ const App = () => {
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="SelectedFav" component={SelectedFavScreen} />
       <Stack.Screen name="AnimeScreen" component={AnimeScreen} />
       <Stack.Screen name="Favourites" component={FavouritesScreen} />
