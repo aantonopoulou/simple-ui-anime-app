@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   },
 
   infoContainer1: {
-    // marginBottom: 68,
+    marginBottom: 50,
     //zIndex: -1,
     // flex: 1,
   },
