@@ -7,6 +7,22 @@ const LoginScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  const newUsersCreds = async () => {
+    try {
+      // Retrieve the user object from AsyncStorage
+      const usersJson = await AsyncStorage.getItem('newUsers');
+      if (usersJson) {
+        const newUsers = JSON.parse(usersJson);
+        console.log('All signUp users credentials:', newUsers);
+        return usersJson;
+      } else {
+        console.log('Users not found in AsyncStorage');
+      }
+    } catch (error) {
+      console.log('Error retrieving users:', error);
+    }
+  };
+
   const handleLogin = async () => {
     const user = usersData.users.find(
       userData =>

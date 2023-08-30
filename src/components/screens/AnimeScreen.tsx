@@ -62,8 +62,16 @@ const clearAllData = async () => {
 
 const AnimeScreen = ({navigation, route}: ScreenProps) => {
   const {selAnime, userId} = route.params;
-  console.log('userId1:', userId);
-  console.log('selAnime1:', selAnime);
+
+  useEffect(() => {
+    console.log('userId1:', userId);
+  }, [userId]);
+
+  useEffect(() => {
+    console.log('selAnime1:', selAnime);
+  }, [selAnime]);
+  // console.log('userId1:', userId);
+  // console.log('selAnime1:', selAnime);
 
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
@@ -71,6 +79,21 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
   const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [animeData, setAnimeData] = useState([]);
   const [textAdd, setTextAdd] = useState('Add to Favorites');
+
+  const logNewUserCreds = async (userId: string) => {
+    try {
+      // Retrieve the user object from AsyncStorage
+      const userJson = await AsyncStorage.getItem('user');
+      if (userJson) {
+        const user = JSON.parse(userJson);
+        console.log('New user credentials:', user);
+      } else {
+        console.log('User not found in AsyncStorage');
+      }
+    } catch (error) {
+      console.log('Error retrieving user:', error);
+    }
+  };
 
   const logStoredDataForUser = async (userId: string) => {
     try {
@@ -85,44 +108,107 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
     }
   };
 
-  logStoredDataForUser(userId);
+  useEffect(() => {
+    logNewUserCreds(userId);
+  }, [userId]);
+  useEffect(() => {
+    logStoredDataForUser(userId);
+  }, []);
+
+  //  const [options, setOptions] = useState<Anime[]>([]);
+
+  //  useEffect(() => {
+  //    const fetchAnimeTitles = async () => {
+  //      const response = await axios.get('https://api.jikan.moe/v4/anime');
+  //      setOptions(response.data.data);
+  //    };
+  //    fetchAnimeTitles();
+  //  }, []);
+
+  //  const formatOptionLabel = ({title_english, title_japanese}: Anime) => (
+  //    <div>{title_english ? title_english : title_japanese}</div>
+  //  );
 
   const fetchAnimeTitles = async () => {
     try {
+      // Check if the titles are already stored in AsyncStorage
+
       const response = await axios.get('https://api.jikan.moe/v4/anime');
       const animeData = response.data.data;
       const titles = animeData.map((anime: Anime) => ({
         label: anime.title_english || anime.title_japanese,
         value: anime.mal_id.toString(),
       }));
-      console.log('value1:', value);
-      console.log('titles', titles);
-      //console.log('animeData:', animeData);
+
+      // Save the titles in AsyncStorage for future use
+      await AsyncStorage.setItem('animeTitles', JSON.stringify(titles));
+      await AsyncStorage.setItem('animeInfo', JSON.stringify(animeData));
+
+      // Set the titles as items in the state
       setItems(titles);
       setAnimeData(animeData);
-      console.log('value2:', value);
+      //      }
     } catch (error) {
       console.log('Error fetching anime titles:', error);
+      const storedTitles = await AsyncStorage.getItem('animeTitles');
+      if (storedTitles) {
+        // If the titles are already stored, parse and set them as items
+        setItems(JSON.parse(storedTitles));
+      }
     }
   };
+  const fetchAnimeDetails = async () => {
+    try {
+      const response = await axios.get('https://api.jikan.moe/v4/anime');
+      const animeData = response.data.data;
+      const animeDetails = animeData.map((anime: Anime) => ({
+        label: anime.title_english || anime.title_japanese,
+        value: anime.mal_id.toString(),
+        summary: anime.synopsis,
+        year: anime.year,
+        episodes: anime.episodes,
+        score: anime.score,
+        trailerUrl: anime.trailer.url,
+      }));
+      await AsyncStorage.setItem('animeDetails', JSON.stringify(animeDetails));
+      setItems(animeDetails);
+    } catch (error) {
+      console.log('Error fetching anime details:', error);
+      const storedDetails = await AsyncStorage.getItem('animeDetails');
+      if (storedDetails) {
+        // If the titles are already stored, parse and set them as items
+        setItems(JSON.parse(storedDetails));
+      }
+    }
+  };
+
+  // useEffect(() => {
+  //   fetchAnimeDetails;
+  // }, []);
 
   const fetchSelectedAnimeInfo = async (animeId: string) => {
     console.log(`https://api.jikan.moe/v4/anime/${animeId}`);
     try {
+      // Find the selected anime from the fetched or stored animeData
       const selectedAnime = animeData.find(
-        (anime: Anime) => anime.mal_id.toString() === value,
+        (anime: Anime) => anime.mal_id.toString() === animeId,
       );
       if (selectedAnime) {
-        console.log('selectedAnime2=', selectedAnime);
+        console.log('selectedAnime is found =', selectedAnime);
         console.log('value=', value);
         console.log('items=', items);
         setSelectedAnime(selectedAnime);
         setTextAdd('Add to Favorites');
       } else {
-        console.log('Anime not found');
+        console.log('selectedAnime not found');
       }
     } catch (error) {
       console.log('Error fetching anime info:', error);
+      useEffect(() => {
+        fetchAnimeDetails;
+      }, []);
+      setSelectedAnime(selectedAnime);
+      setTextAdd('Add to Favorites');
     }
   };
 
@@ -141,10 +227,17 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
     // });
     if (value) {
       fetchSelectedAnimeInfo(value);
+      console.log(
+        'fetchSelectedAnimeInfo(value) was excecuted, thus value is true',
+      );
     } else {
       setSelectedAnime(selAnime);
+      console.log(
+        'setSelectedAnime(selAnime) was excecuted, thus value is false',
+      );
+      console.log('selAnime:::', selAnime);
     }
-  }, [value, animeData]);
+  }, [value]);
 
   useEffect(() => {
     console.log('value=', value);
@@ -225,52 +318,54 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
     console.log('youtubeId= ', youtubeId);
 
     return (
-      <View style={{zIndex: -1}}>
-        <ScrollView style={styles.scrollView}>
-          {/* <Text>{selectedAnime.trailer.url}</Text> */}
-          {selectedAnime && (
-            <View style={styles.buttonContainer3}>
-              <Button
-                onPress={() => handleAddToFavourites(selectedAnime)}
-                title={textAdd}
-              />
-            </View>
-          )}
-          {selectedAnime ? (
-            <Text style={styles.animeTitle}>
-              {selectedAnime.title_english || selectedAnime.title_japanese}
-            </Text>
-          ) : (
-            <Text>Select a title from the dropdown menu!</Text>
-          )}
+      <ScrollView style={styles.scrollView}>
+        {/* <Text>{selectedAnime.trailer.url}</Text> */}
+        {selectedAnime && (
+          <View style={styles.buttonContainer3}>
+            <Button
+              onPress={() => handleAddToFavourites(selectedAnime)}
+              title={textAdd}
+            />
+          </View>
+        )}
+        {selectedAnime ? (
+          <Text style={styles.animeTitle}>
+            {selectedAnime.title_english || selectedAnime.title_japanese}
+          </Text>
+        ) : (
+          <Text>Select a title from the dropdown menu!</Text>
+        )}
 
-          <View style={styles.infoContainer2}>
-            <Text style={styles.infoText}>Year: {selectedAnime.year}</Text>
-            <Text style={styles.infoText}>
-              Episodes: {selectedAnime.episodes}
-            </Text>
-            <Text style={styles.infoText}>Score: {selectedAnime.score}</Text>
-          </View>
-          <View style={styles.infoContainer1}>
-            {trailerUrl && (
-              <WebView
-                mediaPlaybackRequiresUserAction={true}
-                style={styles.webView}
-                source={{uri: trailerUrl}}
-              />
-            )}
-            <Text style={styles.synopsis}>
-              Description: {selectedAnime.synopsis}
-            </Text>
-          </View>
-        </ScrollView>
-      </View>
+        <View style={styles.infoContainer2}>
+          <Text style={styles.infoText}>Year: {selectedAnime.year}</Text>
+          <Text style={styles.infoText}>
+            Episodes: {selectedAnime.episodes}
+          </Text>
+          <Text style={styles.infoText}>Score: {selectedAnime.score}</Text>
+        </View>
+        <View style={styles.infoContainer1}>
+          {trailerUrl && (
+            <WebView
+              mediaPlaybackRequiresUserAction={true}
+              style={styles.webView}
+              source={{uri: trailerUrl}}
+            />
+          )}
+          <Text style={styles.synopsis}>
+            Description: {selectedAnime.synopsis}
+          </Text>
+        </View>
+      </ScrollView>
     );
   };
   // const handlePress = () => {
   //   navigation.navigate('History');
   // };
-  console.log('userId3:', userId);
+  useEffect(() => {
+    console.log('userId3:', userId);
+  }, [userId]);
+
+  // console.log('userId 3:', userId);
 
   return (
     <>
@@ -302,47 +397,90 @@ const AnimeScreen = ({navigation, route}: ScreenProps) => {
             </View>
           </TouchableOpacity>
         </View>
-        <View style={{zIndex: 1}}>
-          {value === null ? (
-            <DropDownPicker
-              open={open}
-              value={value}
-              items={items}
-              setOpen={setOpen}
-              setValue={itemValue => setValue(itemValue)}
-              setItems={setItems}
-              placeholder="Search for an anime film or series"
-              dropDownContainerStyle={{backgroundColor: '#fff', zIndex: 1}}
-              listMode="SCROLLVIEW"
-              scrollViewProps={{
-                decelerationRate: 'fast',
-              }}
-            />
-          ) : (
-            <View>
-              <DropDownPicker
-                open={open}
-                value={value}
-                items={items}
-                setOpen={setOpen}
-                setValue={itemValue => setValue(itemValue)}
-                setItems={setItems}
-                placeholder={
-                  selectedAnime?.title_english
-                    ? selectedAnime?.title_english
-                    : selectedAnime?.title_japanese
-                }
-                dropDownContainerStyle={{backgroundColor: '#fff', zIndex: 1}}
-                listMode="SCROLLVIEW"
-                scrollViewProps={{
-                  decelerationRate: 'fast',
-                }}
-              />
+        {value === null ? (
+          <DropDownPicker
+            open={open}
+            value={value}
+            items={items}
+            setOpen={setOpen}
+            setValue={itemValue => setValue(itemValue)}
+            setItems={setItems}
+            placeholder="Search for an anime film or series"
+            dropDownContainerStyle={{
+              backgroundColor: '#fff',
+              elevation: 1, // Adjust the elevation as needed
+            }}
+            listMode="SCROLLVIEW"
+            scrollViewProps={{
+              decelerationRate: 'fast',
+            }}
+          />
+        ) : (
+          <DropDownPicker
+            open={open}
+            value={value}
+            items={items}
+            setOpen={setOpen}
+            setValue={itemValue => setValue(itemValue)}
+            setItems={setItems}
+            placeholder={
+              selectedAnime?.title_english
+                ? selectedAnime?.title_english
+                : selectedAnime?.title_japanese
+            }
+            dropDownContainerStyle={{
+              backgroundColor: '#fff',
+              elevation: 1, // Adjust the elevation as needed
+            }}
+            listMode="SCROLLVIEW"
+            scrollViewProps={{
+              decelerationRate: 'fast',
+            }}
+          />
+        )}
+        {/* // console.log('trailerUrl= ', selectedAnime.trailer.url); //
+        // console.log('EMBEDEDURL= ', selectedAnime.trailer?.embed_url); //
+        // console.log('youtubeId= ', selectedAnime.trailer.youtube_id); */}
+        {selectedAnime && (
+          <ScrollView style={styles.scrollView}>
+            {/* <Text>{selectedAnime.trailer.url}</Text> */}
+            {selectedAnime && (
+              <View style={styles.buttonContainer3}>
+                <Button
+                  onPress={() => handleAddToFavourites(selectedAnime)}
+                  title={textAdd}
+                />
+              </View>
+            )}
+            {selectedAnime ? (
+              <Text style={styles.animeTitle}>
+                {selectedAnime.title_english || selectedAnime.title_japanese}
+              </Text>
+            ) : (
+              <Text>Select a title from the dropdown menu!</Text>
+            )}
 
-              {selectedAnime && renderAnime(selectedAnime)}
+            <View style={styles.infoContainer2}>
+              <Text style={styles.infoText}>Year: {selectedAnime.year}</Text>
+              <Text style={styles.infoText}>
+                Episodes: {selectedAnime.episodes}
+              </Text>
+              <Text style={styles.infoText}>Score: {selectedAnime.score}</Text>
             </View>
-          )}
-        </View>
+            <View style={styles.infoContainer1}>
+              {selectedAnime.trailer.url && (
+                <WebView
+                  mediaPlaybackRequiresUserAction={true}
+                  style={styles.webView}
+                  source={{uri: selectedAnime.trailer.url}}
+                />
+              )}
+              <Text style={styles.synopsis}>
+                Description: {selectedAnime.synopsis}
+              </Text>
+            </View>
+          </ScrollView>
+        )}
       </View>
     </>
   );
@@ -360,7 +498,8 @@ const styles = StyleSheet.create({
   },
 
   infoContainer1: {
-    zIndex: -1,
+    // marginBottom: 68,
+    //zIndex: -1,
     // flex: 1,
   },
   infoContainer2: {
@@ -405,8 +544,9 @@ const styles = StyleSheet.create({
     // flexGrow: 1,
     paddingHorizontal: 2,
     paddingVertical: 15,
+    zIndex: -1, ////////////////////////////////////
 
-    zIndex: 2,
+    //zIndex: 2,
   },
   animeTitle: {
     fontSize: 20,
@@ -416,7 +556,6 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   synopsis: {
-    // marginBottom: 8,
     paddingVertical: 5,
   },
   infoText: {

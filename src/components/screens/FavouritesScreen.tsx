@@ -8,6 +8,7 @@ import {
   FlatList,
   Alert,
   Image,
+  ScrollView,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {useFavouritesStore} from '../store/FavouritesStore';
@@ -160,7 +161,7 @@ const FavouritesScreen = ({route, navigation}: ScreenProps) => {
       <View>
         <Text
           style={{
-            fontSize: 22,
+            fontSize: 28,
             fontWeight: 'bold',
             color: 'black',
             marginVertical: 16,
@@ -176,28 +177,30 @@ const FavouritesScreen = ({route, navigation}: ScreenProps) => {
         )}
       /> */}
       {/* <View style={styles.container}> */}
-      {favorites.map((selectedFav: Anime) => (
-        <View style={styles.itemContainer} key={selectedFav?.mal_id}>
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() => {
-              console.log('SelectedFav fromFavs pressed!', selectedFav);
-              navigation.navigate('AnimeScreen', {
-                selAnime: selectedFav, // Passing the selectedFav object directly
-                userId: userId,
-              });
-            }}>
-            <Text style={styles.titles}>
-              {selectedFav?.title_english || selectedFav?.title_japanese}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => handleRemoveFavorite(selectedFav)}>
-            <Text style={styles.deleteButtonText}>delete</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
+      <ScrollView>
+        {favorites.map((selectedFav: Anime) => (
+          <View style={styles.itemContainer} key={selectedFav?.mal_id}>
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => {
+                console.log('SelectedFav fromFavs pressed!', selectedFav);
+                navigation.navigate('AnimeScreen', {
+                  selAnime: selectedFav, // Passing the selectedFav object directly
+                  userId: userId,
+                });
+              }}>
+              <Text style={styles.titles}>
+                {selectedFav?.title_english || selectedFav?.title_japanese}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleRemoveFavorite(selectedFav)}>
+              <Text style={styles.deleteButtonText}>delete</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
       {/* </View> */}
     </View>
     // </View>
@@ -233,7 +236,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    //marginBottom: 16,
+    height: 60,
   },
   item: {
     flex: 1,

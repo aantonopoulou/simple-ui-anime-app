@@ -1,12 +1,23 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import usersData from '../../users.json';
 import {View, TextInput, Button, Alert, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export interface User {
+  email: string;
+  username: string;
+  password: string;
+}
 
 const SignupScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [newUsers, setNewUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    console.log('All new signUp creds:', newUsers);
+  }, [newUsers]);
 
   const handleSignup = async () => {
     // Create a new user object with the provided email, username, and password
@@ -19,8 +30,11 @@ const SignupScreen = ({navigation}) => {
     // Save the new user object to AsyncStorage
     try {
       await AsyncStorage.setItem('user', JSON.stringify(newUser));
+      setNewUsers(prevUsers => [...prevUsers, newUser]);
+
       console.log('New user registered successfully:', newUser);
-      // You can also navigate to the AnimeScreen or any other screen after successful signup
+      console.log('All new signUp creds:', newUsers);
+
       navigation.navigate('AnimeScreen', {userId: username});
     } catch (error) {
       console.log('Error saving user:', error);
